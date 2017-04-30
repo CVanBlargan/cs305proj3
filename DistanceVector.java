@@ -1,4 +1,4 @@
-
+import java.util.HashMap;
 /**
  * A hashmap of the different distances to the other nodes within the network of Routers.
  * 
@@ -7,7 +7,7 @@
 public class DistanceVector
 {
     // instance variables - replace the example below with your own
-    private int x;
+    private HashMap dV;
 
     /**
      * Constructor for objects of class DistanceVector
@@ -15,7 +15,7 @@ public class DistanceVector
     public DistanceVector()
     {
         // initialise instance variables
-        x = 0;
+        
     }
 
     /**
@@ -24,13 +24,9 @@ public class DistanceVector
      * @param  y   a sample parameter for a method
      * @return     the sum of x and y 
      */
-    public int sampleMethod(int y)
-    {
-        // put your code here
-        return x + y;
-    }
     public boolean add(String ipAddress, int port, int weight)
     {
+        //dv.put?
         return true;
     }
 }

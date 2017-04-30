@@ -2,9 +2,7 @@
 comment0.params=
 comment0.target=DistanceVector()
 comment0.text=\r\n\ Constructor\ for\ objects\ of\ class\ DistanceVector\r\n
-comment1.params=y
-comment1.target=int\ sampleMethod(int)
+comment1.params=ipAddress\ port\ weight
+comment1.target=boolean\ add(java.lang.String,\ int,\ int)
 comment1.text=\r\n\ An\ example\ of\ a\ method\ -\ replace\ this\ comment\ with\ your\ own\r\n\ \r\n\ @param\ \ y\ \ \ a\ sample\ parameter\ for\ a\ method\r\n\ @return\ \ \ \ \ the\ sum\ of\ x\ and\ y\ \r\n
-comment2.params=ipAddress\ port\ weight
-comment2.target=boolean\ add(java.lang.String,\ int,\ int)
-numComments=3
+numComments=2
