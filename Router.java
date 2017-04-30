@@ -31,7 +31,19 @@ public class Router
     
     public static void main(String[] args) throws Exception
     {
-        
+        if(args.length != 1){
+            System.out.println("Please specify a command: PRINT, MSG<dst-ip> <dst-port> <msg>, or CHANGE <dst-ip> <dst-port> <new-weight>");
+            System.exit(1);
+        }
+        if(args.length == 1 && args[0].equals("PRINT")){
+            System.out.println("Print");
+        }
+        if(args.length == 4 && args[0].equals("MSG")) {
+            System.out.println("Message");
+        }
+        if(args.length == 4 && args[0].equals("CHANGE")){
+            System.out.println("Change");
+        }
     }
 
     /**
