@@ -8,15 +8,35 @@
 public class Message
 {
     // instance variables - replace the example below with your own
-    private int x;
-
+    private DistanceVector distV;
+    private int newWeight;
+    private String message;
+    private String destIp;
+    private int destPort;
+    private int weight;
     /**
-     * Constructor for objects of class Message
+     * Overloaded Constructor for 3 different types of Messages as per project description
      */
-    public Message()
+    public Message(String ip, int port, String newMessage)
     {
         // initialise instance variables
-        x = 0;
+        message = newMessage;
+        destIp = ip;
+        destPort = port;
+    }
+    
+    public Message(String ip, int port, DistanceVector newDistV)
+    {
+        distV = newDistV;
+        destIp = ip;
+        destPort = port;
+    }
+    
+    public Message(String ip, int port, int weight)
+    {
+        weight = newWeight;
+        destIp = ip;
+        destPort = port;
     }
 
     /**
@@ -28,6 +48,6 @@ public class Message
     public int sampleMethod(int y)
     {
         // put your code here
-        return x + y;
+        return  y;
     }
 }

@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Scanner;
 
 /**
  * Write a description of class Router here.
@@ -8,15 +12,26 @@
 public class Router
 {
     // instance variables - replace the example below with your own
-    private int x;
+    private String ipAddress;
+    private int portNumber;
+    
 
     /**
      * Constructor for objects of class Router
      */
-    public Router()
+    public Router(boolean reverse, String filename)
     {
         // initialise instance variables
-        x = 0;
+        if(reverse){       //if poisoned reverse
+        
+        }else{              //no poisoned reverse
+        
+        }
+    }
+    
+    public static void main(String[] args) throws Exception
+    {
+        
     }
 
     /**
@@ -25,9 +40,9 @@ public class Router
      * @param  y   a sample parameter for a method
      * @return     the sum of x and y 
      */
-    public int sampleMethod(int y)
+    public int print(int y)
     {
         // put your code here
-        return x + y;
+        return  y;
     }
 }

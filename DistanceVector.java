@@ -1,9 +1,8 @@
 
 /**
- * Write a description of class DistanceVector here.
+ * A hashmap of the different distances to the other nodes within the network of Routers.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Matthew Becka and Chris VanBlargan
  */
 public class DistanceVector
 {
