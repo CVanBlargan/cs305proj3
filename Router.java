@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Scanner;
+import java.io.FileReader;
 
 /**
  * Write a description of class Router here.
@@ -14,7 +15,7 @@ public class Router
     // instance variables - replace the example below with your own
     private String ipAddress;
     private int portNumber;
-    
+    private DistanceVector distV;
 
     /**
      * Constructor for objects of class Router
@@ -27,7 +28,56 @@ public class Router
         }else{              //no poisoned reverse
         
         }
-    }
+        //read file and convert to DistanceVector Object
+        BufferedReader br = null;
+		FileReader fr = null;
+		
+		try {
+
+			fr = new FileReader(filename);
+			br = new BufferedReader(fr);
+
+			String sCurrentLine;
+
+			if ((sCurrentLine = br.readLine()) != null) {    //parses first line for this router's info
+				System.out.println(sCurrentLine);
+				String[] parts = sCurrentLine.split(" ");
+				ipAddress = parts[0];
+				portNumber = Integer.parseInt(parts[1]);
+			}
+			
+			while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
+				System.out.println(sCurrentLine);
+				String[] parts = sCurrentLine.split(" ");
+				int tempPortNumber = Integer.parseInt(parts[1]);
+				int tempWeight = Integer.parseInt(parts[2]);
+				distV.add(parts[0], tempPortNumber, tempWeight);
+			}
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		} finally {
+
+			try {
+
+				if (br != null)
+					br.close();
+
+				if (fr != null)
+					fr.close();
+
+			} catch (IOException ex) {
+
+				ex.printStackTrace();
+
+			}
+
+		}
+
+	}
+    
     
     public static void main(String[] args) throws Exception
     {

@@ -29,4 +29,8 @@ public class DistanceVector
         // put your code here
         return x + y;
     }
+    public boolean add(String ipAddress, int port, int weight)
+    {
+        return true;
+    }
 }
