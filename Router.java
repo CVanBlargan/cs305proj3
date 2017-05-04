@@ -3,7 +3,9 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.Scanner;
 import java.io.FileReader;
-
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.net.InetAddress;
 /**
 * Write a description of class Router here.
 *
@@ -16,9 +18,10 @@ public class Router
   private String ipAddress;
   private int portNumber;
   private DistanceVector distV;
-
+  private Socket clientSocket;
+  private InetAddress ipAdd;
   private boolean poisonedReverse;
-
+  private ServerSocket serverSocket;
   /**
   * Constructor for objects of class Router
   */
@@ -34,7 +37,7 @@ public class Router
 
       fr = new FileReader(filename);
       br = new BufferedReader(fr);
-
+      
       String sCurrentLine;
 
       if ((sCurrentLine = br.readLine()) != null) {    //parses first line for this router's info
@@ -42,6 +45,9 @@ public class Router
       String[] parts = sCurrentLine.split(" ");
       ipAddress = parts[0];
       portNumber = Integer.parseInt(parts[1]);
+      serverSocket = new ServerSocket(portNumber);
+      serverSocket.setReuseAddress(true);
+      //clientSocket = new Socket("localhost", portNumber); 
     }
 
     while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
@@ -49,7 +55,7 @@ public class Router
       String[] parts = sCurrentLine.split(" ");
       int tempPortNumber = Integer.parseInt(parts[1]);
       int tempWeight = Integer.parseInt(parts[2]);
-      distV.add(parts[0], tempPortNumber, tempWeight);
+      //distV.add(parts[0], tempPortNumber, tempWeight);
     }
 
   } catch (IOException e) {
@@ -100,9 +106,45 @@ public static void main(String[] args) throws Exception
 * @param  y   a sample parameter for a method
 * @return     the sum of x and y
 */
-public int print(int y)
+public boolean close()
 {
-  // put your code here
-  return  y;
+  if(!serverSocket.isClosed()){
+    try {
+      serverSocket.close();
+    } catch (IOException ex) {
+
+      ex.printStackTrace();
+
+    }
+    System.out.println("Server Socket Closed");
+  }
+  /*if(!clientSocket.isClosed()){
+    System.out.println("Client Socket Closed");
+  }*/
+  return true;
+}
+public boolean connectSocket(int port)
+{
+    //access array list of sockets and connect
+    try{
+        clientSocket = new Socket("localhost", port); 
+        System.out.println("Client Socket Connected");
+    } catch (IOException ex) {
+        ex.printStackTrace();
+    }
+        return true;
+}
+public boolean closeSocket()
+{
+    //access array list of sockets and close/drop?
+    if(!clientSocket.isClosed()){
+        System.out.println("Client Socket Closed");
+        try{
+            clientSocket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    return true;
 }
 }
