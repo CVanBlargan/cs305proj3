@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Set;
 /**
  * A hashmap of the different distances to the other nodes within the network of Routers.
  *
@@ -13,10 +14,17 @@ public class DistanceVector
     /**
      * Constructor for objects of class DistanceVector
      */
-    public DistanceVector()
-    {
+    public DistanceVector() {
         // initialise instance variables
 
+    }
+
+   /**
+    * Gets the hashmap storing the router's distance vector.
+    * @return the hashmap storing the router's distance vector.
+    */
+    public HashMap<String, String> getDistanceVector() {
+      return dV;
     }
 
     /**
@@ -27,8 +35,7 @@ public class DistanceVector
      * @param  weight the weight to get to that router from the current one
      * @return     true if added to the distance vector
      */
-    public boolean addNeighbor(String ipAddress, int port, int weight)
-    {
+    public boolean addNeighbor(String ipAddress, int port, int weight) {
         //convert ipAddress, port into one identifying item
         //key is in the form of ipAddress:port#
         //value is in the form of weight:nextNode
@@ -46,6 +53,12 @@ public class DistanceVector
           if (weight < oldWeight) {
             dV.put(key, value);
             return true;
+          } else {
+            String oldPath = dV.get(key).split(":")[1];
+            if (oldPath == key) {
+              //old shortest path to neighbor was straight to neighbor. Need to update distance to this.
+              dV.put(key, value);
+            }
           }
         } else {
           //no entry exists for neighbor, place in hashmap
@@ -62,7 +75,14 @@ public class DistanceVector
     * @param sender the router who sent the distance vector
     * @return true when distance vector is finished updating
     */
-    public boolean addVector(DistanceVector vector, String sender) {
+    public boolean addVector(HashMap<String, String> vector, String sender) {
+      for (String key : vector.keySet()) {
+        String updatedIPAddress = key.split(":")[0];
+        int updatedPort = Integer.parseInt(key.split(":")[1]);
+        int updatedWeight = Integer.parseInt(vector.get(key).split(":")[0]);
+        addNeighbor(updatedIPAddress, updatedPort, updatedWeight);
+      }
+
       return true;
     }
 }
