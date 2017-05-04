@@ -10,6 +10,7 @@ public class DistanceVector
     // the distance vector is stored as a hashmap. The key is the ip address and port number in one string
     // the value stored is the weight and the next node on the path to get there
     private HashMap<String, String> dV;
+    private HashMap<String, Integer> neighbors;
 
     /**
      * Constructor for objects of class DistanceVector
@@ -27,6 +28,10 @@ public class DistanceVector
       return dV;
     }
 
+    public HashMap<String, Integer> getNeighbors() {
+      return neighbors;
+    }
+
     /**
      * Add item to the router's distance vector. Meant to be called upon initial setup of neighbors.
      *
@@ -35,7 +40,7 @@ public class DistanceVector
      * @param  weight the weight to get to that router from the current one
      * @return     true if added to the distance vector
      */
-    public boolean addNeighbor(String ipAddress, int port, int weight) {
+    public boolean updateNeighbor(String ipAddress, int port, int weight) {
         //convert ipAddress, port into one identifying item
         //key is in the form of ipAddress:port#
         //value is in the form of weight:nextNode
@@ -71,16 +76,56 @@ public class DistanceVector
 
    /**
     *
-    * @param vector the dstance vector receieved by the router to update
+    * @param vector the distance vector receieved by the router to update
     * @param sender the router who sent the distance vector
     * @return true when distance vector is finished updating
     */
     public boolean addVector(HashMap<String, String> vector, String sender) {
+      if (!neighbors.containsKey(sender)) {
+        neighbors.put(sender, Integer.parseInt(vector.get(sender).split(":")[0]));
+      }
+
       for (String key : vector.keySet()) {
         String updatedIPAddress = key.split(":")[0];
         int updatedPort = Integer.parseInt(key.split(":")[1]);
         int updatedWeight = Integer.parseInt(vector.get(key).split(":")[0]);
-        addNeighbor(updatedIPAddress, updatedPort, updatedWeight);
+        updateNeighbor(updatedIPAddress, updatedPort, updatedWeight);
+      }
+
+      //check neighbors to see if any direct paths are now shorter
+      for (String key : neighbors.keySet()) {
+        if (Integer.parseInt(dV.get(key).split(":")[0]) > neighbors.get(key)) {
+          updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
+        }
+      }
+
+      return true;
+    }
+
+    /**
+     * Call after calculating a new distance vector to print results
+     * @return true after printing
+     */
+    public boolean printCalculatedDistanceVector() {
+      for (String key : dV.keySet()) {
+        String node = key;
+        String distance = dV.get(key).split(":")[0];
+        String nextHop = dV.get(key).split(":")[1];
+        System.out.println(key + " " + distance + " " + nextHop);
+      }
+
+      return true;
+    }
+
+    /**
+     * Call when sending or recieving a distance vector to print the sent/recieved vector
+     * @return true after printing
+     */
+    public boolean printSentDistanceVector() {
+      for (String key : dV.keySet()) {
+        String node = key;
+        String distance = dV.get(key).split(":")[0];
+        System.out.println(key + " " + distance);
       }
 
       return true;
