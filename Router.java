@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Scanner;
 import java.io.FileReader;
 import java.net.Socket;
@@ -22,6 +24,8 @@ public class Router
   private InetAddress ipAdd;
   private boolean poisonedReverse;
   private ServerSocket serverSocket;
+  private InputStream inputStream;
+  private DataOutputStream socketOut;
   /**
   * Constructor for objects of class Router
   */
@@ -37,7 +41,6 @@ public class Router
 
       fr = new FileReader(filename);
       br = new BufferedReader(fr);
-      
       String sCurrentLine;
 
       if ((sCurrentLine = br.readLine()) != null) {    //parses first line for this router's info
@@ -47,7 +50,9 @@ public class Router
       portNumber = Integer.parseInt(parts[1]);
       serverSocket = new ServerSocket(portNumber);
       serverSocket.setReuseAddress(true);
-      //clientSocket = new Socket("localhost", portNumber); 
+      //clientSocket = serverSocket.accept(); //current infinite loop
+      //socketOut = new DataOutputStream(clientSocket.getOutputStream()); //not work without ^^
+      //establish streams here?
     }
 
     while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
@@ -128,6 +133,7 @@ public boolean connectSocket(int port)
     //access array list of sockets and connect
     try{
         clientSocket = new Socket("localhost", port); 
+        inputStream = clientSocket.getInputStream();
         System.out.println("Client Socket Connected");
     } catch (IOException ex) {
         ex.printStackTrace();
