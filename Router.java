@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Scanner;
 import java.io.FileReader;
 import java.net.Socket;
@@ -96,20 +97,22 @@ public static void main(String[] args) throws Exception
   }
   if(args.length == 1 && args[0].equals("PRINT")){
     System.out.println("Print");
+    //this.print();
   }
   if(args.length == 4 && args[0].equals("MSG")) {
     System.out.println("Message");
+    //this.sendMessage(args[3], args[1], Integer.parseInt(args[2]));
   }
   if(args.length == 4 && args[0].equals("CHANGE")){
     System.out.println("Change");
+    //this.updateWeight(Integer.parseInt(args[3]), args[1], Integer.parseInt(args[2]));
   }
 }
 
 /**
-* An example of a method - replace this comment with your own
+* method that closes down the Roputer's server socket
 *
-* @param  y   a sample parameter for a method
-* @return     the sum of x and y
+* @return     returns true if the socket is closed
 */
 public boolean close()
 {
@@ -122,12 +125,18 @@ public boolean close()
 
     }
     System.out.println("Server Socket Closed");
+    return true;
   }
   /*if(!clientSocket.isClosed()){
     System.out.println("Client Socket Closed");
   }*/
-  return true;
+  return false;
 }
+/**
+* method that connects to a socket
+*
+* @return     returns true if the socket is connected
+*/
 public boolean connectSocket(int port)
 {
     //access array list of sockets and connect
@@ -135,11 +144,17 @@ public boolean connectSocket(int port)
         clientSocket = new Socket("localhost", port); 
         inputStream = clientSocket.getInputStream();
         System.out.println("Client Socket Connected");
+        return true;
     } catch (IOException ex) {
         ex.printStackTrace();
+        return false;
     }
-        return true;
 }
+/**
+* method that closes a socket
+*
+* @return     returns true if the socket is closed
+*/
 public boolean closeSocket()
 {
     //access array list of sockets and close/drop?
@@ -147,10 +162,53 @@ public boolean closeSocket()
         System.out.println("Client Socket Closed");
         try{
             clientSocket.close();
+            return true;
         } catch (IOException ex) {
             ex.printStackTrace();
+            return false;
         }
     }
+    return false;
+}
+/**
+* method that sends updated weights to all neighbors
+*
+*/
+public boolean sendUpdates()
+{
+    //push DV to serverSocket output?
+    return true;
+}
+/**
+* method that recieves all updated weights from neighbors
+*
+*/
+public boolean recieveUpdates()
+{
+    return true;
+}
+/**
+* method that sends a message to a specific neighbor
+*
+*/
+public boolean sendMessage(String message, String ip, int port)
+{
+    return true;
+}
+/**
+* method that sends a message to a specific neighbor
+*
+*/
+public boolean updateWeight(int weight, String ip, int port)
+{
+    return true;
+}
+/**
+* method that prints the current Distance Vector and the Distance Vectors received from the neighbors
+*
+*/
+public boolean Print()
+{
     return true;
 }
 }
