@@ -103,7 +103,7 @@ public class Router
   run();
 }
 
-public static void startSender(String neighborIP, int neighborPort, int sendType) {
+public static void startSender(String neighborIP, int neighborPort, int sendType, int weight, String messageText) {
   (new Thread() {
     @Override
     public void run() {
@@ -118,17 +118,16 @@ public static void startSender(String neighborIP, int neighborPort, int sendType
           default:
           //Distance Vector
           case 1:
-          message = new Message(ipAddress, portNumber, distV);
+          message = new Message(neighborIP, neighborPort, distV, ipAddress, portNumber);
           break;
           //Weight update
           case 2:
-          sendData = "sentence".getBytes();
-          message = new Message(ipAddress, portNumber, distV);
+          message = new Message(neighborIP, neighborPort, weight, ipAddress, portNumber);
           break;
           //Message
           case 3:
-          sendData = "no".getBytes();
-          message = new Message(ipAddress, portNumber, distV);
+          String updatedMessageText =  messageText + " " + ipAddress + ":" + portNumber;
+          message = new Message(neighborIP, neighborPort, updatedMessageText, ipAddress, portNumber);
           break;
         }
 
@@ -168,11 +167,12 @@ public static void startServer() {
           int byteCount = receivePacket.getLength();
           ByteArrayInputStream byteStream = new
           ByteArrayInputStream(sentence);
-          ObjectInputStream is = new
-          ObjectInputStream(new BufferedInputStream(byteStream));
-          Object o = is.readObject();
+          ObjectInputStream is = new ObjectInputStream(new BufferedInputStream(byteStream));
+          Message message = (Message) is.readObject();
           is.close();
-          System.out.println(o);
+
+          System.out.println("new dv received from " + message.getSenderRouter() + " with the following distances:");
+          Message.getDistanceVector().printSentDistanceVector();
         }
       } catch(Exception e) {
         e.printStackTrace();
@@ -194,7 +194,7 @@ public static void run() {
 
       switch(parts[0]) {
         case "PRINT":
-          
+
         break;
         case "MSG":
 
@@ -224,7 +224,7 @@ public static boolean sendUpdates()
     String IPAddress = key.split(":")[0];
     int port = Integer.parseInt(key.split(":")[1]);
 
-    startSender(IPAddress, port, 1);
+    startSender(IPAddress, port, 1, 0, "");
   }
   System.out.println("Update sent to all neighbors at time t(in seconds)");
   distV.printSentDistanceVector();
