@@ -98,10 +98,9 @@ public class Router
     public void run() {
       sendUpdates();
     }
-
-
-
   }, 100, 10000);
+
+  run();
 }
 
 public static void startSender(String neighborIP, int neighborPort, int sendType) {
@@ -184,24 +183,34 @@ public static void startServer() {
   }).start();
 }
 
-public static void run(String[] args) throws Exception
-{
-  if(args.length != 1 || args.length != 4 || args.length != 2){
-    System.out.println("Please specify a command: PRINT, MSG<dst-ip> <dst-port> <msg>, or CHANGE <dst-ip> <dst-port> <new-weight>");
-    //System.exit(1);
-  }
-  if(args.length == 1 && args[0].equals("PRINT")){
-    System.out.println("Print");
-    //this.print();
-  }
-  if(args.length == 4 && args[0].equals("MSG")) {
-    System.out.println("Message");
-    //this.sendMessage(args[3], args[1], Integer.parseInt(args[2]));
-  }
-  if(args.length == 4 && args[0].equals("CHANGE")){
-    System.out.println("Change");
-    //this.updateWeight(Integer.parseInt(args[3]), args[1], Integer.parseInt(args[2]));
-  }
+public static void run() {
+  (new Thread() {
+    @Override
+    public void run() {
+      try {
+      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+      String input = inFromUser.readLine();
+      String[] parts = input.split(" ", 4);
+
+      switch(parts[0]) {
+        case "PRINT":
+          
+        break;
+        case "MSG":
+
+        break;
+        case "CHANGE":
+
+        break;
+        default:
+          System.out.println("Invalid command");
+          break;
+      }
+    } catch (Exception e) {
+
+    }
+    }
+  }).start();
 }
 
 /**
