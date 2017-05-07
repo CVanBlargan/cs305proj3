@@ -88,12 +88,21 @@ public class Router
 
 }
 
-
 public static void main(String[] args) throws Exception
 {
-  if(args.length != 1){
+    if(args.length != 2)
+    {
+     System.out.println("Please specify if this router uses poisoned reverse and give a valid filename, as such; 'java router true neighbors.txt'");
+     System.exit(1);
+    } else {
+     Router test = new Router(Boolean.parseBoolean(args[0]), args[1]);
+    }
+}
+public static void run(String[] args) throws Exception
+{
+  if(args.length != 1 || args.length != 4 || args.length != 2){
     System.out.println("Please specify a command: PRINT, MSG<dst-ip> <dst-port> <msg>, or CHANGE <dst-ip> <dst-port> <new-weight>");
-    System.exit(1);
+    //System.exit(1);
   }
   if(args.length == 1 && args[0].equals("PRINT")){
     System.out.println("Print");
@@ -108,7 +117,6 @@ public static void main(String[] args) throws Exception
     //this.updateWeight(Integer.parseInt(args[3]), args[1], Integer.parseInt(args[2]));
   }
 }
-
 /**
 * method that closes down the Roputer's server socket
 *
