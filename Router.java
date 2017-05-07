@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.net.Socket;
 import java.net.ServerSocket;
 import java.net.InetAddress;
+import java.io.*;
+import java.net.*;
 /**
 * Write a description of class Router here.
 *
@@ -19,7 +21,7 @@ public class Router
 {
   // instance variables
   private String ipAddress;
-  private int portNumber;
+  private static int portNumber;
   private DistanceVector distV;
   private Socket clientSocket;
   private InetAddress ipAdd;
@@ -38,185 +40,138 @@ public class Router
     BufferedReader br = null;
     FileReader fr = null;
 
-    try {
-
-      fr = new FileReader(filename);
-      br = new BufferedReader(fr);
-      String sCurrentLine;
-
-      if ((sCurrentLine = br.readLine()) != null) {    //parses first line for this router's info
-      System.out.println(sCurrentLine);
-      String[] parts = sCurrentLine.split(" ");
-      ipAddress = parts[0];
-      portNumber = Integer.parseInt(parts[1]);
-      serverSocket = new ServerSocket(portNumber);
-      serverSocket.setReuseAddress(true);
-      //clientSocket = serverSocket.accept(); //current infinite loop
-      //socketOut = new DataOutputStream(clientSocket.getOutputStream()); //not work without ^^
-      //establish streams here?
-    }
-
-    while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
-      System.out.println(sCurrentLine);
-      String[] parts = sCurrentLine.split(" ");
-      int tempPortNumber = Integer.parseInt(parts[1]);
-      int tempWeight = Integer.parseInt(parts[2]);
-      //distV.add(parts[0], tempPortNumber, tempWeight);
-    }
-
-  } catch (IOException e) {
-
-    e.printStackTrace();
-
-  } finally {
-
-    try {
-
-      if (br != null)
-      br.close();
-
-      if (fr != null)
-      fr.close();
-
-    } catch (IOException ex) {
-
-      ex.printStackTrace();
-
-    }
-
   }
 
-}
+  public static void main(String[] args) throws Exception
+  {
+    portNumber = Integer.parseInt(args[0]);
 
-public static void main(String[] args) throws Exception
-{
-    if(args.length != 2)
-    {
-     System.out.println("Please specify if this router uses poisoned reverse and give a valid filename, as such; 'java router true neighbors.txt'");
-     System.exit(1);
-    } else {
-     Router test = new Router(Boolean.parseBoolean(args[0]), args[1]);
-    }
-}
-public static void run(String[] args) throws Exception
-{
-  if(args.length != 1 || args.length != 4 || args.length != 2){
-    System.out.println("Please specify a command: PRINT, MSG<dst-ip> <dst-port> <msg>, or CHANGE <dst-ip> <dst-port> <new-weight>");
-    //System.exit(1);
+    startServer();
+    startSender();
+    // if(args.length != 2)
+    // {
+    //   System.out.println("Please specify if this router uses poisoned reverse and give a valid filename, as such; 'java router true neighbors.txt'");
+    //   System.exit(1);
+    // } else {
+    //   Router test = new Router(Boolean.parseBoolean(args[0]), args[1]);
+    // }
   }
-  if(args.length == 1 && args[0].equals("PRINT")){
-    System.out.println("Print");
-    //this.print();
-  }
-  if(args.length == 4 && args[0].equals("MSG")) {
-    System.out.println("Message");
-    //this.sendMessage(args[3], args[1], Integer.parseInt(args[2]));
-  }
-  if(args.length == 4 && args[0].equals("CHANGE")){
-    System.out.println("Change");
-    //this.updateWeight(Integer.parseInt(args[3]), args[1], Integer.parseInt(args[2]));
-  }
-}
-/**
-* method that closes down the Roputer's server socket
-*
-* @return     returns true if the socket is closed
-*/
-public boolean close()
-{
-  if(!serverSocket.isClosed()){
-    try {
-      serverSocket.close();
-    } catch (IOException ex) {
 
-      ex.printStackTrace();
+  public static void startSender() {
+    (new Thread() {
+      @Override
+      public void run() {
+        try {
+          BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+          DatagramSocket clientSocket = new DatagramSocket();
+          InetAddress IPAddress = InetAddress.getByName("localhost");
+          byte[] sendData = new byte[1024];
+          byte[] receiveData = new byte[1024];
+          String sentence = inFromUser.readLine();
+          sendData = sentence.getBytes();
+          DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+          clientSocket.send(sendPacket);
+          DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+          clientSocket.receive(receivePacket);
+          String modifiedSentence = new String(receivePacket.getData());
+          System.out.println("FROM SERVER:" + modifiedSentence);
+          clientSocket.close();
 
-    }
-    System.out.println("Server Socket Closed");
-    return true;
-  }
-  /*if(!clientSocket.isClosed()){
-    System.out.println("Client Socket Closed");
-  }*/
-  return false;
-}
-/**
-* method that connects to a socket
-*
-* @return     returns true if the socket is connected
-*/
-public boolean connectSocket(int port)
-{
-    //access array list of sockets and connect
-    try{
-        clientSocket = new Socket("localhost", port); 
-        inputStream = clientSocket.getInputStream();
-        System.out.println("Client Socket Connected");
-        return true;
-    } catch (IOException ex) {
-        ex.printStackTrace();
-        return false;
-    }
-}
-/**
-* method that closes a socket
-*
-* @return     returns true if the socket is closed
-*/
-public boolean closeSocket()
-{
-    //access array list of sockets and close/drop?
-    if(!clientSocket.isClosed()){
-        System.out.println("Client Socket Closed");
-        try{
-            clientSocket.close();
-            return true;
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return false;
+        } catch (Exception e) {
+          e.printStackTrace();
         }
+      }
+    }).start();
+  }
+
+  public static void startServer() {
+    (new Thread() {
+      @Override
+      public void run() {
+        try {
+          System.out.println(portNumber);
+          DatagramSocket serverSocket = new DatagramSocket(portNumber);
+          byte[] receiveData = new byte[1024];
+          byte[] sendData = new byte[1024];
+          while(true) {
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            serverSocket.receive(receivePacket);
+            String sentence = new String(receivePacket.getData());
+            InetAddress IPAddress = receivePacket.getAddress();
+            int port = receivePacket.getPort();
+            String capitalizedSentence = sentence.toUpperCase();
+            sendData = capitalizedSentence.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+            serverSocket.send(sendPacket);
+          }
+        } catch(Exception e) {
+          e.printStackTrace();
+        } finally {
+
+        }
+      }
+    }).start();
+  }
+
+  public static void run(String[] args) throws Exception
+  {
+    if(args.length != 1 || args.length != 4 || args.length != 2){
+      System.out.println("Please specify a command: PRINT, MSG<dst-ip> <dst-port> <msg>, or CHANGE <dst-ip> <dst-port> <new-weight>");
+      //System.exit(1);
     }
-    return false;
-}
-/**
-* method that sends updated weights to all neighbors
-*
-*/
-public boolean sendUpdates()
-{
+    if(args.length == 1 && args[0].equals("PRINT")){
+      System.out.println("Print");
+      //this.print();
+    }
+    if(args.length == 4 && args[0].equals("MSG")) {
+      System.out.println("Message");
+      //this.sendMessage(args[3], args[1], Integer.parseInt(args[2]));
+    }
+    if(args.length == 4 && args[0].equals("CHANGE")){
+      System.out.println("Change");
+      //this.updateWeight(Integer.parseInt(args[3]), args[1], Integer.parseInt(args[2]));
+    }
+  }
+
+  /**
+  * method that sends updated weights to all neighbors
+  *
+  */
+  public boolean sendUpdates()
+  {
     //push DV to serverSocket output?
     return true;
-}
-/**
-* method that recieves all updated weights from neighbors
-*
-*/
-public boolean recieveUpdates()
-{
+  }
+  /**
+  * method that recieves all updated weights from neighbors
+  *
+  */
+  public boolean recieveUpdates()
+  {
     return true;
-}
-/**
-* method that sends a message to a specific neighbor
-*
-*/
-public boolean sendMessage(String message, String ip, int port)
-{
+  }
+  /**
+  * method that sends a message to a specific neighbor
+  *
+  */
+  public boolean sendMessage(String message, String ip, int port)
+  {
     return true;
-}
-/**
-* method that sends a message to a specific neighbor
-*
-*/
-public boolean updateWeight(int weight, String ip, int port)
-{
+  }
+  /**
+  * method that sends a message to a specific neighbor
+  *
+  */
+  public boolean updateWeight(int weight, String ip, int port)
+  {
     return true;
-}
-/**
-* method that prints the current Distance Vector and the Distance Vectors received from the neighbors
-*
-*/
-public boolean Print()
-{
+  }
+  /**
+  * method that prints the current Distance Vector and the Distance Vectors received from the neighbors
+  *
+  */
+  public boolean Print()
+  {
     return true;
-}
+  }
 }
