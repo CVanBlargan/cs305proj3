@@ -68,4 +68,12 @@ public class Message implements Serializable
     public int getWeight() {
        return weight;
     }
+
+    public String getDest() {
+      return destIp + ":" + destPort;
+    }
+
+    public String getMessage() {
+      return message;
+    }
 }

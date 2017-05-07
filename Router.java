@@ -23,6 +23,7 @@ public class Router
   private ServerSocket serverSocket;
   private InputStream inputStream;
   private DataOutputStream socketOut;
+  private static int updateTime = 100000;
   /**
   * Constructor for objects of class Router
   */
@@ -56,7 +57,7 @@ public class Router
       String[] parts = sCurrentLine.split(" ");
       ipAddress = parts[0];
       portNumber = Integer.parseInt(parts[1]);
-        distV = new DistanceVector(parts[0] + ":" + parts[1]);
+      distV = new DistanceVector(parts[0] + ":" + parts[1]);
     }
 
 
@@ -101,7 +102,7 @@ public class Router
     public void run() {
       sendUpdates();
     }
-  }, 100, 10000);
+  }, 100, updateTime);
 
   run();
 }
@@ -189,6 +190,25 @@ public static void startServer() {
             distV.printCalculatedDistanceVector();
             break;
             case 3:
+            String dest = message.getDest();
+            if (dest.equals(ipAddress + ":" + portNumber)) {
+              System.out.println(message.getMessage());
+            } else {
+              String destIP;
+              int destPort;
+
+              //pull from routing table
+              if (!distV.getNextNode(dest).equals(null)) {
+                String routedDest = distV.getNextNode(dest);
+                destIP = routedDest.split(":")[0];
+                destPort = Integer.valueOf(routedDest.split(":")[1]);
+
+                String msg = message.getMessage();
+                startSender(destIP, destPort, 3, 0, msg);
+                System.out.println("Message msg from ipAddr:port to ipAddr:port forwarded to " + routedDest);
+                System.out.println(msg + " " + ipAddress + ":" + portNumber);
+              }
+            }
             default:
             break;
           }
@@ -207,35 +227,38 @@ public static void run() {
     @Override
     public void run() {
       while (true) {
-      try {
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-        String input = inFromUser.readLine();
-        String[] parts = input.split(" ", 4);
+        try {
+          BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+          String input = inFromUser.readLine();
+          String[] parts = input.split(" ", 4);
 
-        switch(parts[0]) {
-          case "PRINT":
-          System.out.println("Current distance vector:");
-          distV.printSentDistanceVector();
-          distV.printNeighborVectors();
-          break;
-          case "MSG":
+          switch(parts[0]) {
+            case "PRINT":
+            System.out.println("Current distance vector:");
+            distV.printSentDistanceVector();
+            distV.printNeighborVectors();
+            break;
+            case "MSG":
+            String destIP = parts[1];
+            int destPort = Integer.valueOf(parts[2]);
+            String msg = parts[3];
+            startSender(destIP, destPort, 3, 0, msg);
+            break;
+            case "CHANGE":
+            destIP = parts[1];
+            destPort = Integer.valueOf(parts[2]);
+            int destWeight = Integer.valueOf(parts[3]);
+            updateWeight(destWeight, destIP, destPort);
+            distV.printCalculatedDistanceVector();
+            break;
+            default:
+            System.out.println("Invalid command");
+            break;
+          }
+        } catch (Exception e) {
 
-          break;
-          case "CHANGE":
-          String destIP = parts[1];
-          int destPort = Integer.valueOf(parts[2]);
-          int destWeight = Integer.valueOf(parts[3]);
-          updateWeight(destWeight, destIP, destPort);
-          distV.printCalculatedDistanceVector();
-          break;
-          default:
-          System.out.println("Invalid command");
-          break;
         }
-      } catch (Exception e) {
-
       }
-    }
     }
   }).start();
 }

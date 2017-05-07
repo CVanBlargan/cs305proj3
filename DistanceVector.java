@@ -161,4 +161,12 @@ public class DistanceVector implements Serializable
     }
     return false;
   }
+
+  public String getNextNode(String dest) {
+    if (!dV.containsKey(dest)) {
+      return null;
+    }
+    
+    return dV.get(dest).split(":", 2)[1];
+  }
 }
