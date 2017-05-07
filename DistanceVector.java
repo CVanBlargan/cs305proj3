@@ -12,6 +12,7 @@ public class DistanceVector implements Serializable
     // the value stored is the weight and the next node on the path to get there
     private HashMap<String, String> dV;
     private HashMap<String, Integer> neighbors;
+    private HashMap<String, HashMap<String, String>> neighborsDV;
 
     private String source;
 
@@ -22,6 +23,7 @@ public class DistanceVector implements Serializable
         // initialise instance variables
         neighbors = new HashMap<String, Integer>();
         dV = new HashMap<String, String>();
+        neighborsDV = new HashMap<String, HashMap<String, String>>();
 
         source = host;
     }
@@ -93,6 +95,8 @@ public class DistanceVector implements Serializable
     * @return true when distance vector is finished updating
     */
     public boolean addVector(HashMap<String, String> vector, String sender) {
+      neighborsDV.put(sender, vector);
+
       if (!neighbors.containsKey(sender)) {
         neighbors.put(sender, Integer.parseInt(vector.get(sender).split(":")[0]));
       }
@@ -144,4 +148,17 @@ public class DistanceVector implements Serializable
 
       return true;
     }
+
+    public boolean printNeighborVectors() {
+      for (String key : neighborsDV.keySet()) {
+        HashMap<String, String> nDV = neighborsDV.get(key);
+        System.out.println("Neighbor distance vector: " + key);
+          for (String nDVKey : nDV.keySet()) {
+            String node = nDVKey;
+            String distance = nDV.get(nDVKey).split(":")[0];
+            System.out.println(node + " " + distance);
+          }
+    }
+    return false;
+  }
 }

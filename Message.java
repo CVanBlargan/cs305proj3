@@ -64,4 +64,8 @@ public class Message implements Serializable
     public int getType() {
       return type;
     }
+
+    public int getWeight() {
+       return weight;
+    }
 }

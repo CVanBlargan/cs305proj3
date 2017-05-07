@@ -174,11 +174,23 @@ public static void startServer() {
           Message message = (Message) is.readObject();
           is.close();
 
-          if (message.getType() == 1) {
+          switch(message.getType()) {
+            case 1:
             System.out.println("new dv received from " + message.getSenderRouter() + " with the following distances:");
             message.getDistanceVector().printSentDistanceVector();
             recieveUpdates(message.getDistanceVector(), message.getSenderRouter());
-
+            break;
+            case 2:
+            String sender = message.getSenderRouter();
+            int newWeight = message.getWeight();
+            System.out.println("New weight to neighbor " + sender + " of " + newWeight);
+            distV.updateNeighbor(sender.split(":")[0], Integer.valueOf(sender.split(":")[0]), newWeight);
+            System.out.println("new dv calculated:");
+            distV.printCalculatedDistanceVector();
+            break;
+            case 3:
+            default:
+            break;
           }
         }
       } catch(Exception e) {
@@ -194,6 +206,7 @@ public static void run() {
   (new Thread() {
     @Override
     public void run() {
+      while (true) {
       try {
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
         String input = inFromUser.readLine();
@@ -201,7 +214,9 @@ public static void run() {
 
         switch(parts[0]) {
           case "PRINT":
-
+          System.out.println("Current distance vector:");
+          distV.printSentDistanceVector();
+          distV.printNeighborVectors();
           break;
           case "MSG":
 
@@ -216,6 +231,7 @@ public static void run() {
       } catch (Exception e) {
 
       }
+    }
     }
   }).start();
 }
