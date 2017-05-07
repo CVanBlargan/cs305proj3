@@ -24,18 +24,6 @@ public class Router
   private InputStream inputStream;
   private DataOutputStream socketOut;
   private static int updateTime = 100000;
-  /**
-  * Constructor for objects of class Router
-  */
-  public Router(boolean reverse, String filename)
-  {
-    // initialise instance variables
-    poisonedReverse = reverse;
-    //read file and convert to DistanceVector Object
-    BufferedReader br = null;
-    FileReader fr = null;
-
-  }
 
   public static void main(String[] args) throws Exception
   {
@@ -269,6 +257,7 @@ public static void run() {
 */
 public static boolean sendUpdates()
 {
+ if(poisonedReverse == false){
   HashMap<String, Integer> neighbors = distV.getNeighbors();
   for (String key : neighbors.keySet()) {
     String IPAddress = key.split(":")[0];
@@ -279,6 +268,10 @@ public static boolean sendUpdates()
   System.out.println("Update sent to all neighbors at time t(in seconds)");
   distV.printSentDistanceVector();
   return true;
+}else{
+ DistanceVector tempVect = distV;
+ return true;
+}
 }
 /**
 * method that recieves all updated weights from neighbors
