@@ -16,7 +16,7 @@ public class Router
   private static String ipAddress;
   private static String filename;
   private static int portNumber;
-  private static DistanceVector distV = new DistanceVector();
+  private static DistanceVector distV;
   private Socket clientSocket;
   private InetAddress ipAdd;
   private static boolean poisonedReverse;
@@ -56,7 +56,10 @@ public class Router
       String[] parts = sCurrentLine.split(" ");
       ipAddress = parts[0];
       portNumber = Integer.parseInt(parts[1]);
+        distV = new DistanceVector(parts[0] + ":" + parts[1]);
     }
+
+
 
     while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
       System.out.println(sCurrentLine);

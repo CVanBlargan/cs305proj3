@@ -13,13 +13,17 @@ public class DistanceVector implements Serializable
     private HashMap<String, String> dV;
     private HashMap<String, Integer> neighbors;
 
+    private String source;
+
     /**
      * Constructor for objects of class DistanceVector
      */
-    public DistanceVector() {
+    public DistanceVector(String host) {
         // initialise instance variables
         neighbors = new HashMap<String, Integer>();
         dV = new HashMap<String, String>();
+
+        source = host;
     }
 
    /**
@@ -97,7 +101,9 @@ public class DistanceVector implements Serializable
         String updatedIPAddress = key.split(":")[0];
         int updatedPort = Integer.parseInt(key.split(":")[1]);
         int updatedWeight = Integer.parseInt(vector.get(key).split(":")[0]);
-        updateNeighbor(updatedIPAddress, updatedPort, updatedWeight);
+        if (!key.equals(source)) {
+          updateNeighbor(updatedIPAddress, updatedPort, updatedWeight);
+        }
       }
 
       //check neighbors to see if any direct paths are now shorter
