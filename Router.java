@@ -1,14 +1,6 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.Scanner;
-import java.io.FileReader;
-import java.net.Socket;
-import java.net.ServerSocket;
-import java.net.InetAddress;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.io.*;
 import java.net.*;
 /**
@@ -48,6 +40,15 @@ public class Router
 
     startServer();
     startSender();
+
+    Timer timer = new Timer();
+
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        sendUpdates();
+      }
+    }, 100, 10000);
     // if(args.length != 2)
     // {
     //   System.out.println("Please specify if this router uses poisoned reverse and give a valid filename, as such; 'java router true neighbors.txt'");
@@ -62,21 +63,22 @@ public class Router
       @Override
       public void run() {
         try {
-          BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-          DatagramSocket clientSocket = new DatagramSocket();
-          InetAddress IPAddress = InetAddress.getByName("localhost");
-          byte[] sendData = new byte[1024];
-          byte[] receiveData = new byte[1024];
-          String sentence = inFromUser.readLine();
-          sendData = sentence.getBytes();
-          DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
-          clientSocket.send(sendPacket);
-          DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-          clientSocket.receive(receivePacket);
-          String modifiedSentence = new String(receivePacket.getData());
-          System.out.println("FROM SERVER:" + modifiedSentence);
-          clientSocket.close();
-
+          while(true){
+            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+            DatagramSocket clientSocket = new DatagramSocket();
+            InetAddress IPAddress = InetAddress.getByName("localhost");
+            byte[] sendData = new byte[1024];
+            byte[] receiveData = new byte[1024];
+            String sentence = inFromUser.readLine();
+            sendData = sentence.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+            clientSocket.send(sendPacket);
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            clientSocket.receive(receivePacket);
+            String modifiedSentence = new String(receivePacket.getData());
+            System.out.println("FROM SERVER:" + modifiedSentence);
+            clientSocket.close();
+          }
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -89,14 +91,16 @@ public class Router
       @Override
       public void run() {
         try {
-          System.out.println(portNumber);
           DatagramSocket serverSocket = new DatagramSocket(portNumber);
           byte[] receiveData = new byte[1024];
           byte[] sendData = new byte[1024];
           while(true) {
+            receiveData = new byte[1024];
+            sendData = new byte[1024];
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
             serverSocket.receive(receivePacket);
             String sentence = new String(receivePacket.getData());
+            System.out.println(sentence);
             InetAddress IPAddress = receivePacket.getAddress();
             int port = receivePacket.getPort();
             String capitalizedSentence = sentence.toUpperCase();
@@ -137,9 +141,10 @@ public class Router
   * method that sends updated weights to all neighbors
   *
   */
-  public boolean sendUpdates()
+  public static boolean sendUpdates()
   {
     //push DV to serverSocket output?
+    System.out.println("sent");
     return true;
   }
   /**
