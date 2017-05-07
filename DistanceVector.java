@@ -67,8 +67,8 @@ public class DistanceVector implements Serializable
             dV.put(key, value);
             return true;
           } else {
-            String oldPath = dV.get(key).split(":")[1];
-            if (oldPath == key) {
+            String oldPath = dV.get(key).split(":", 2)[1];
+            if (oldPath.equals(key)) {
               //old shortest path to neighbor was straight to neighbor. Need to update distance to this.
               dV.put(key, value);
             }
@@ -127,8 +127,8 @@ public class DistanceVector implements Serializable
     public boolean printCalculatedDistanceVector() {
       for (String key : dV.keySet()) {
         String node = key;
-        String distance = dV.get(key).split(":")[0];
-        String nextHop = dV.get(key).split(":")[1];
+        String distance = dV.get(key).split(":", 2)[0];
+        String nextHop = dV.get(key).split(":", 2)[1];
         System.out.println(key + " " + distance + " " + nextHop);
       }
 

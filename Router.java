@@ -222,7 +222,11 @@ public static void run() {
 
           break;
           case "CHANGE":
-
+          String destIP = parts[1];
+          int destPort = Integer.valueOf(parts[2]);
+          int destWeight = Integer.valueOf(parts[3]);
+          updateWeight(destWeight, destIP, destPort);
+          distV.printCalculatedDistanceVector();
           break;
           default:
           System.out.println("Invalid command");
@@ -273,8 +277,8 @@ public boolean sendMessage(String message, String ip, int port)
 * method that sends a message to a specific neighbor
 *
 */
-public boolean updateWeight(int weight, String ip, int port)
-{
+public static boolean updateWeight(int weight, String ip, int port) {
+  distV.updateNeighbor(ip, port, weight);
   return true;
 }
 /**
