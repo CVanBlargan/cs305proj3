@@ -1,11 +1,12 @@
 import java.util.HashMap;
 import java.util.Set;
+import java.io.*;
 /**
  * A hashmap of the different distances to the other nodes within the network of Routers.
  *
  * @author Matthew Beck and Chris VanBlargan
  */
-public class DistanceVector
+public class DistanceVector implements Serializable
 {
     // the distance vector is stored as a hashmap. The key is the ip address and port number in one string
     // the value stored is the weight and the next node on the path to get there
