@@ -167,13 +167,13 @@ public static void startServer() {
           byte[] sentence = receivePacket.getData();
 
           int byteCount = receivePacket.getLength();
-                ByteArrayInputStream byteStream = new
-                                            ByteArrayInputStream(sentence);
-                ObjectInputStream is = new
-                     ObjectInputStream(new BufferedInputStream(byteStream));
-                Object o = is.readObject();
-                is.close();
-                System.out.println(o);
+          ByteArrayInputStream byteStream = new
+          ByteArrayInputStream(sentence);
+          ObjectInputStream is = new
+          ObjectInputStream(new BufferedInputStream(byteStream));
+          Object o = is.readObject();
+          is.close();
+          System.out.println(o);
         }
       } catch(Exception e) {
         e.printStackTrace();
@@ -217,8 +217,8 @@ public static boolean sendUpdates()
 
     startSender(IPAddress, port, 1);
   }
-  //push DV to serverSocket output?
-  System.out.println("sent");
+  System.out.println("Update sent to all neighbors at time t(in seconds)");
+  distV.printSentDistanceVector();
   return true;
 }
 /**
