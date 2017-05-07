@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.HashMap;
 import java.io.*;
 import java.net.*;
 /**
@@ -14,7 +15,7 @@ public class Router
   // instance variables
   private String ipAddress;
   private static int portNumber;
-  private DistanceVector distV;
+  private static DistanceVector distV;
   private Socket clientSocket;
   private InetAddress ipAdd;
   private boolean poisonedReverse;
@@ -39,7 +40,6 @@ public class Router
     portNumber = Integer.parseInt(args[0]);
 
     startServer();
-    startSender();
 
     Timer timer = new Timer();
 
@@ -58,27 +58,35 @@ public class Router
     // }
   }
 
-  public static void startSender() {
+  public static void startSender(String neighborIP, int neighborPort, int sendType) {
     (new Thread() {
       @Override
       public void run() {
         try {
-          while(true){
-            BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
             DatagramSocket clientSocket = new DatagramSocket();
             InetAddress IPAddress = InetAddress.getByName("localhost");
             byte[] sendData = new byte[1024];
-            byte[] receiveData = new byte[1024];
-            String sentence = inFromUser.readLine();
-            sendData = sentence.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
+
+            switch(sendType) {
+              default:
+              //Distance Vector
+              case 1:
+                sendData = "Hi".getBytes();
+              break;
+              //Weight update
+              case 2:
+                sendData = "sentence".getBytes();
+              break;
+              //Message
+              case 3:
+                sendData = "no".getBytes();
+              break;
+            }
+
+
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, neighborPort);
             clientSocket.send(sendPacket);
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            clientSocket.receive(receivePacket);
-            String modifiedSentence = new String(receivePacket.getData());
-            System.out.println("FROM SERVER:" + modifiedSentence);
             clientSocket.close();
-          }
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -101,12 +109,12 @@ public class Router
             serverSocket.receive(receivePacket);
             String sentence = new String(receivePacket.getData());
             System.out.println(sentence);
-            InetAddress IPAddress = receivePacket.getAddress();
-            int port = receivePacket.getPort();
-            String capitalizedSentence = sentence.toUpperCase();
-            sendData = capitalizedSentence.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-            serverSocket.send(sendPacket);
+            // InetAddress IPAddress = receivePacket.getAddress();
+            // int port = receivePacket.getPort();
+            // String capitalizedSentence = sentence.toUpperCase();
+            // sendData = capitalizedSentence.getBytes();
+            // DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+            // serverSocket.send(sendPacket);
           }
         } catch(Exception e) {
           e.printStackTrace();
@@ -143,6 +151,13 @@ public class Router
   */
   public static boolean sendUpdates()
   {
+     HashMap<String, Integer> neighbors = distV.getNeighbors();
+     for (String key : neighbors.keySet()) {
+       String IPAddress = key.split(":")[0];
+       int port = Integer.parseInt(key.split(":")[1]);
+
+       startSender(IPAddress, port, 1);
+     }
     //push DV to serverSocket output?
     System.out.println("sent");
     return true;
