@@ -171,8 +171,12 @@ public static void startServer() {
           Message message = (Message) is.readObject();
           is.close();
 
-          System.out.println("new dv received from " + message.getSenderRouter() + " with the following distances:");
-          Message.getDistanceVector().printSentDistanceVector();
+          if (message.getType() == 1) {
+            System.out.println("new dv received from " + message.getSenderRouter() + " with the following distances:");
+            message.getDistanceVector().printSentDistanceVector();
+            recieveUpdates(message.getDistanceVector(), message.getSenderRouter());
+
+          }
         }
       } catch(Exception e) {
         e.printStackTrace();
@@ -188,27 +192,27 @@ public static void run() {
     @Override
     public void run() {
       try {
-      BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-      String input = inFromUser.readLine();
-      String[] parts = input.split(" ", 4);
+        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+        String input = inFromUser.readLine();
+        String[] parts = input.split(" ", 4);
 
-      switch(parts[0]) {
-        case "PRINT":
+        switch(parts[0]) {
+          case "PRINT":
 
-        break;
-        case "MSG":
+          break;
+          case "MSG":
 
-        break;
-        case "CHANGE":
+          break;
+          case "CHANGE":
 
-        break;
-        default:
+          break;
+          default:
           System.out.println("Invalid command");
           break;
-      }
-    } catch (Exception e) {
+        }
+      } catch (Exception e) {
 
-    }
+      }
     }
   }).start();
 }
@@ -234,8 +238,8 @@ public static boolean sendUpdates()
 * method that recieves all updated weights from neighbors
 *
 */
-public boolean recieveUpdates()
-{
+public static boolean recieveUpdates(DistanceVector dV, String sender) {
+  distV.addVector(dV.getDistanceVector(), sender);
   return true;
 }
 /**

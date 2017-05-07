@@ -8,7 +8,10 @@ import java.io.*;
 public class Message implements Serializable
 {
     // instance variables - replace the example below with your own
-    private static DistanceVector distV;
+    //
+    private int type;
+
+    private DistanceVector distV;
     private int newWeight;
     private String message;
     private String destIp;
@@ -21,6 +24,7 @@ public class Message implements Serializable
      */
     public Message(String ip, int port, String newMessage, String sendIP, int sendPort)
     {
+      type = 3;
         // initialise instance variables
         message = newMessage;
         destIp = ip;
@@ -31,6 +35,7 @@ public class Message implements Serializable
 
     public Message(String ip, int port, DistanceVector newDistV, String sendIP, int sendPort)
     {
+      type = 1;
         distV = newDistV;
         destIp = ip;
         destPort = port;
@@ -40,6 +45,7 @@ public class Message implements Serializable
 
     public Message(String ip, int port, int weight, String sendIP, int sendPort)
     {
+      type = 2;
         weight = newWeight;
         destIp = ip;
         destPort = port;
@@ -47,11 +53,15 @@ public class Message implements Serializable
         senderPort = sendPort;
     }
 
-    public static DistanceVector getDistanceVector() {
+    public DistanceVector getDistanceVector() {
       return distV;
     }
 
     public String getSenderRouter() {
       return senderIP + ":" + senderPort;
+    }
+
+    public int getType() {
+      return type;
     }
 }
