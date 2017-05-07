@@ -17,7 +17,8 @@ public class DistanceVector
      */
     public DistanceVector() {
         // initialise instance variables
-
+        neighbors = new HashMap<String, Integer>();
+        dV = new HashMap<String, String>();
     }
 
    /**
@@ -50,7 +51,7 @@ public class DistanceVector
 
         //place item into hash map
         //if already exists, only place if weight is smaller
-        if (dV.get(key) != null) {
+        if (dV.containsKey(key)) {
           //pulls the integer value of the weight of the old entry in the hashmap
           int oldWeight = Integer.parseInt(dV.get(key).split(":")[0]);
 
@@ -72,6 +73,12 @@ public class DistanceVector
         }
         //entry was not added
         return false;
+    }
+
+    public boolean addNeighbor(String ipAddress, int port, int weight) {
+      String key = ipAddress + ":" + Integer.toString(port);
+      neighbors.put(key, weight);
+      return true;
     }
 
    /**

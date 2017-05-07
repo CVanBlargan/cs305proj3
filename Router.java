@@ -16,7 +16,7 @@ public class Router
   private static String ipAddress;
   private static String filename;
   private static int portNumber;
-  private static DistanceVector distV;
+  private static DistanceVector distV = new DistanceVector();
   private Socket clientSocket;
   private InetAddress ipAdd;
   private static boolean poisonedReverse;
@@ -57,13 +57,14 @@ public class Router
           ipAddress = parts[0];
           portNumber = Integer.parseInt(parts[1]);
         }
-      
+
         while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
           System.out.println(sCurrentLine);
           String[] parts = sCurrentLine.split(" ");
           int tempPortNumber = Integer.parseInt(parts[1]);
           int tempWeight = Integer.parseInt(parts[2]);
-          //distV.add(parts[0], tempPortNumber, tempWeight);
+          distV.updateNeighbor(parts[0], tempPortNumber, tempWeight);
+          distV.addNeighbor(parts[0], tempPortNumber, tempWeight);
         }
 
       } catch (IOException e) {
@@ -79,7 +80,7 @@ public class Router
 
           if (fr != null)
             fr.close();
-  
+
         } catch (IOException ex) {
 
           ex.printStackTrace();
@@ -98,8 +99,8 @@ public class Router
         sendUpdates();
       }
 
-  
-    
+
+
      }, 100, 10000);
   }
 
@@ -109,7 +110,7 @@ public class Router
       public void run() {
         try {
             DatagramSocket clientSocket = new DatagramSocket();
-            InetAddress IPAddress = InetAddress.getByName("localhost");
+            InetAddress IPAddress = InetAddress.getByName(neighborIP);
             byte[] sendData = new byte[1024];
 
             switch(sendType) {
@@ -127,7 +128,6 @@ public class Router
                 sendData = "no".getBytes();
               break;
             }
-
 
             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, neighborPort);
             clientSocket.send(sendPacket);
