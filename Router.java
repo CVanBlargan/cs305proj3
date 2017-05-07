@@ -13,12 +13,13 @@ import java.net.*;
 public class Router
 {
   // instance variables
-  private String ipAddress;
+  private static String ipAddress;
+  private static String filename;
   private static int portNumber;
   private static DistanceVector distV;
   private Socket clientSocket;
   private InetAddress ipAdd;
-  private boolean poisonedReverse;
+  private static boolean poisonedReverse;
   private ServerSocket serverSocket;
   private InputStream inputStream;
   private DataOutputStream socketOut;
@@ -37,25 +38,69 @@ public class Router
 
   public static void main(String[] args) throws Exception
   {
-    portNumber = Integer.parseInt(args[0]);
+      poisonedReverse = Boolean.parseBoolean(args[0]);
+      filename = args[1];
 
-    startServer();
+      BufferedReader br = null;
+      FileReader fr = null;
 
-    Timer timer = new Timer();
+      try {
 
-    timer.scheduleAtFixedRate(new TimerTask() {
+        fr = new FileReader(filename);
+        br = new BufferedReader(fr);
+
+        String sCurrentLine;
+
+        if ((sCurrentLine = br.readLine()) != null) {    //parses first line for this router's info
+          System.out.println(sCurrentLine);
+          String[] parts = sCurrentLine.split(" ");
+          ipAddress = parts[0];
+          portNumber = Integer.parseInt(parts[1]);
+        }
+      
+        while ((sCurrentLine = br.readLine()) != null) {  //parses rest of file for distance vector info
+          System.out.println(sCurrentLine);
+          String[] parts = sCurrentLine.split(" ");
+          int tempPortNumber = Integer.parseInt(parts[1]);
+          int tempWeight = Integer.parseInt(parts[2]);
+          //distV.add(parts[0], tempPortNumber, tempWeight);
+        }
+
+      } catch (IOException e) {
+
+        e.printStackTrace();
+
+      } finally {
+
+        try {
+
+          if (br != null)
+            br.close();
+
+          if (fr != null)
+            fr.close();
+  
+        } catch (IOException ex) {
+
+          ex.printStackTrace();
+
+        }
+
+      }
+      startServer();
+      //startSender();
+
+      Timer timer = new Timer();
+
+      timer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
         sendUpdates();
       }
-    }, 100, 10000);
-    // if(args.length != 2)
-    // {
-    //   System.out.println("Please specify if this router uses poisoned reverse and give a valid filename, as such; 'java router true neighbors.txt'");
-    //   System.exit(1);
-    // } else {
-    //   Router test = new Router(Boolean.parseBoolean(args[0]), args[1]);
-    // }
+
+  
+    
+     }, 100, 10000);
   }
 
   public static void startSender(String neighborIP, int neighborPort, int sendType) {
