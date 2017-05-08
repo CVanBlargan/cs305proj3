@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Set;
 import java.io.*;
 /**
@@ -14,6 +15,8 @@ public class DistanceVector implements Serializable
     private HashMap<String, Integer> neighbors;
     private HashMap<String, HashMap<String, String>> neighborsDV;
 
+    private ConcurrentHashMap<String, Integer> timeouts;
+
     private String source;
 
     /**
@@ -24,14 +27,15 @@ public class DistanceVector implements Serializable
         neighbors = new HashMap<String, Integer>();
         dV = new HashMap<String, String>();
         neighborsDV = new HashMap<String, HashMap<String, String>>();
+        timeouts = new ConcurrentHashMap<String, Integer>();
 
         source = host;
     }
 
     public DistanceVector(DistanceVector old) {
-      dV = old.getDistanceVector();
-      neighbors = old.getNeighbors();
-      neighborsDV = old.getNeighborsDV();
+      dV = (HashMap<String, String>) old.getDistanceVector().clone();
+      neighbors = (HashMap<String, Integer>) old.getNeighbors().clone();
+      neighborsDV = (HashMap<String, HashMap<String, String>>) old.getNeighborsDV().clone();
       source = old.getSource();
     }
 
@@ -100,6 +104,7 @@ public class DistanceVector implements Serializable
     public boolean addNeighbor(String ipAddress, int port, int weight) {
       String key = ipAddress + ":" + Integer.toString(port);
       neighbors.put(key, weight);
+      timeouts.put(key, 0);
       return true;
     }
 
@@ -110,10 +115,14 @@ public class DistanceVector implements Serializable
     * @return true when distance vector is finished updating
     */
     public boolean addVector(HashMap<String, String> vector, String sender) {
+      //update timeouts
+      timeouts.put(sender, 0);
+
+
       neighborsDV.put(sender, vector);
 
       if (!neighbors.containsKey(sender)) {
-        neighbors.put(sender, Integer.parseInt(vector.get(sender).split(":")[0]));
+        neighbors.put(sender, Integer.parseInt(vector.get(source).split(":")[0]));
       }
 
       for (String key : vector.keySet()) {
@@ -127,9 +136,13 @@ public class DistanceVector implements Serializable
 
       //check neighbors to see if any direct paths are now shorter
       for (String key : neighbors.keySet()) {
+        if (dV.containsKey(key)) {
         if (Integer.parseInt(dV.get(key).split(":")[0]) > neighbors.get(key)) {
           updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
         }
+      } else {
+        updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
+      }
       }
 
       return true;
@@ -185,25 +198,38 @@ public class DistanceVector implements Serializable
     return dV.get(dest).split(":", 2)[1];
   }
 
-  public DistanceVector poisonedReverse(String dest) throws Exception {
-    DistanceVector temp = new DistanceVector(this);
+  public DistanceVector poisonedReverse(String dest, DistanceVector temp) throws Exception {
     for (String key : dV.keySet()) {
         String nextPath = dV.get(key).split(":", 2)[1];
-        System.out.println(nextPath);
-        System.out.println(nextPath + " " + dest + " " + nextPath.equals(dest));
         if (nextPath.equals(dest)) {
-          System.out.println("updating");
           temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), Integer.valueOf(nextPath.split(":")[1]));
         } else {
           String distance = dV.get(key).split(":")[0];
-          System.out.println(key + " " + distance);
         }
     }
-    System.out.println("bye");
     return temp;
   }
+
   public String getHost()
   {
       return source;
   }
+
+  public boolean updateTimeouts() {
+    if (timeouts.isEmpty()) {
+      return false;
+    }
+    for (String key : timeouts.keySet()) {
+      int iterations = timeouts.get(key) + 1;
+      if (iterations >= 3) {
+        timeouts.remove(key);
+        neighbors.remove(key);
+        neighborsDV.remove(key);
+      } else {
+        timeouts.put(key, iterations);
+      }
+    }
+    return true;
+  }
+
 }

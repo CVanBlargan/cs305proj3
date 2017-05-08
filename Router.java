@@ -153,11 +153,9 @@ public void startServer() {
     public void run() {
       try {
         DatagramSocket serverSocket = new DatagramSocket(portNumber);
-        byte[] receiveData = new byte[1024];
-        byte[] sendData = new byte[1024];
+        byte[] receiveData = new byte[2048];
         while(true) {
-          receiveData = new byte[1024];
-          sendData = new byte[1024];
+          receiveData = new byte[2048];
           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
           serverSocket.receive(receivePacket);
           byte[] sentence = receivePacket.getData();
@@ -263,6 +261,8 @@ public void run() {
 */
 public boolean sendUpdates()
 {
+  distV.updateTimeouts();
+
   if(poisonedReverse == false){
     HashMap<String, Integer> neighbors = distV.getNeighbors();
     for (String key : neighbors.keySet()) {
@@ -280,9 +280,11 @@ public boolean sendUpdates()
       for (String key : neighbors.keySet()) {
 
 
+        DistanceVector temp = new DistanceVector(distV);
+
         String IPAddress = key.split(":")[0];
         int port = Integer.parseInt(key.split(":")[1]);
-        startSender(IPAddress, port, 1, 0, "", distV.poisonedReverse(key));
+        startSender(IPAddress, port, 1, 0, "", distV.poisonedReverse(key, temp));
 
       }
     } catch (Exception e) {
