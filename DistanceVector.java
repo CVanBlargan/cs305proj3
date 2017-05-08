@@ -128,7 +128,7 @@ public class DistanceVector implements Serializable
       for (String key : vector.keySet()) {
         String updatedIPAddress = key.split(":")[0];
         int updatedPort = Integer.parseInt(key.split(":")[1]);
-        int updatedWeight = Integer.parseInt(vector.get(key).split(":")[0]);
+        int updatedWeight = Integer.parseInt(vector.get(key).split(":")[0]) + neighbors.get(sender);
         if (!key.equals(source)) {
           updateNeighbor(updatedIPAddress, updatedPort, updatedWeight);
         }
@@ -225,6 +225,7 @@ public class DistanceVector implements Serializable
         timeouts.remove(key);
         neighbors.remove(key);
         neighborsDV.remove(key);
+        System.out.println("Neighbor" + key + "dropped");
       } else {
         timeouts.put(key, iterations);
       }
