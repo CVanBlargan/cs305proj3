@@ -187,7 +187,7 @@ public void startServer() {
             String sender = message.getSenderRouter();
             int newWeight = message.getWeight();
             System.out.println("New weight to neighbor " + sender + " of " + newWeight);
-            distV.updateNeighbor(sender.split(":")[0], Integer.valueOf(sender.split(":")[1]), newWeight);
+            distV.updateNeighborWeight(sender.split(":")[0], Integer.valueOf(sender.split(":")[1]), newWeight);
             System.out.println("new dv calculated:");
             distV.printCalculatedDistanceVector();
             break;

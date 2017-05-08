@@ -40,6 +40,7 @@ public class DistanceVector implements Serializable
       neighbors = (HashMap<String, Integer>) old.getNeighbors().clone();
       neighborsDV = (HashMap<String, HashMap<String, String>>) old.getNeighborsDV().clone();
       source = old.getSource();
+      poisonedRev = old.poisonedRev;
     }
 
     public String getSource() {
@@ -85,7 +86,8 @@ public class DistanceVector implements Serializable
           int oldWeight = Integer.parseInt(dV.get(key).split(":")[0]);
 
           //new weight is smaller, update
-          if (weight < oldWeight && !dV.get(key).split(":", 2)[1].equals(source)) {
+          if (weight < oldWeight && dV.get(key).split(":", 2)[1].equals(source)) {
+            System.out.println("oldPath + key");
             dV.put(key, value);
             return true;
           } else {
@@ -93,6 +95,8 @@ public class DistanceVector implements Serializable
             if (oldPath.equals(key) && dV.get(key).split(":", 2)[1].equals(source)) {
               //old shortest path to neighbor was straight to neighbor. Need to update distance to this.
               dV.put(key, value);
+            } else if(dV.get(key).split(":", 2)[1].equals(source)) {
+              dV.put(key, Integer.toString(weight + neighbors.get(key)) + ":" + key;
             }
           }
         } else {
@@ -108,17 +112,11 @@ public class DistanceVector implements Serializable
         //convert ipAddress, port into one identifying item
         //key is in the form of ipAddress:port#
         //value is in the form of weight:nextNode
-        //value is only used here if the distance to neighbor is shorter than an already existing path
         String key = ipAddress + ":" + Integer.toString(port);
         String value = Integer.toString(weight) + ":" + key;
 
         //place item into hash map
-        //if already exists, only place if weight is smaller
         if (dV.containsKey(key)) {
-          //pulls the integer value of the weight of the old entry in the hashmap
-          int oldWeight = Integer.parseInt(dV.get(key).split(":")[0]);
-
-          //new weight is smaller, update
             dV.put(key, value);
             neighbors.put(key, weight);
             return true;
@@ -164,15 +162,15 @@ public class DistanceVector implements Serializable
       }
 
       //check neighbors to see if any direct paths are now shorter
-      for (String key : neighbors.keySet()) {
-        if (dV.containsKey(key)) {
-        if (Integer.parseInt(dV.get(key).split(":")[0]) > neighbors.get(key)) {
-          updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
-        }
-      } else {
-        updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
-      }
-      }
+      // for (String key : neighbors.keySet()) {
+      //   if (dV.containsKey(key)) {
+      //   if (Integer.parseInt(dV.get(key).split(":")[0]) > neighbors.get(key)) {
+      //     updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
+      //   }
+      // } else {
+      //   updateNeighbor(key.split(":")[0], Integer.parseInt(key.split(":")[1]), neighbors.get(key));
+      // }
+      // }
 
       return true;
     }
@@ -232,8 +230,6 @@ public class DistanceVector implements Serializable
         String nextPath = dV.get(key).split(":", 2)[1];
         if (nextPath.equals(dest)) {
           temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), 9999);
-        } else {
-          String distance = dV.get(key).split(":")[0];
         }
     }
     return temp;
