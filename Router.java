@@ -24,6 +24,7 @@ public class Router
   private InputStream inputStream;
   private DataOutputStream socketOut;
   private int updateTime = 10000;
+  private static int time;
 
   public static void main(String[] args) throws Exception
   {
@@ -44,6 +45,15 @@ public class Router
         router.sendUpdates();
       }
     }, 100, router.updateTime);
+    
+    Timer clock = new Timer();
+
+    clock.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        time++;
+      }
+    }, 100, 1000);
 
     router.run();
   }
@@ -270,7 +280,7 @@ public boolean sendUpdates()
 
       startSender(IPAddress, port, 1, 0, "", distV);
     }
-    System.out.println("Update sent to all neighbors at time t(in seconds)");
+    System.out.println("Update sent to all neighbors at time "+ time +" (in seconds)");
     distV.printSentDistanceVector();
     return true;
   }else{
