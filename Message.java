@@ -46,7 +46,7 @@ public class Message implements Serializable
     public Message(String ip, int port, int weight, String sendIP, int sendPort)
     {
       type = 2;
-        weight = newWeight;
+        newWeight = weight;
         destIp = ip;
         destPort = port;
         senderIP = sendIP;
@@ -66,7 +66,7 @@ public class Message implements Serializable
     }
 
     public int getWeight() {
-       return weight;
+       return newWeight;
     }
 
     public String getDest() {

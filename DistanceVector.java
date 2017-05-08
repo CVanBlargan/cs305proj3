@@ -85,12 +85,12 @@ public class DistanceVector implements Serializable
           int oldWeight = Integer.parseInt(dV.get(key).split(":")[0]);
 
           //new weight is smaller, update
-          if (weight < oldWeight) {
+          if (weight < oldWeight && !dV.get(key).split(":", 2)[1].equals(source)) {
             dV.put(key, value);
             return true;
           } else {
             String oldPath = dV.get(key).split(":", 2)[1];
-            if (oldPath.equals(key) && neighbors.containsKey(key)) {
+            if (oldPath.equals(key) && dV.get(key).split(":", 2)[1].equals(source)) {
               //old shortest path to neighbor was straight to neighbor. Need to update distance to this.
               dV.put(key, value);
             }
@@ -102,6 +102,32 @@ public class DistanceVector implements Serializable
         }
         //entry was not added
         return false;
+    }
+
+    public boolean updateNeighborWeight(String ipAddress, int port, int weight) {
+        //convert ipAddress, port into one identifying item
+        //key is in the form of ipAddress:port#
+        //value is in the form of weight:nextNode
+        //value is only used here if the distance to neighbor is shorter than an already existing path
+        String key = ipAddress + ":" + Integer.toString(port);
+        String value = Integer.toString(weight) + ":" + key;
+
+        //place item into hash map
+        //if already exists, only place if weight is smaller
+        if (dV.containsKey(key)) {
+          //pulls the integer value of the weight of the old entry in the hashmap
+          int oldWeight = Integer.parseInt(dV.get(key).split(":")[0]);
+
+          //new weight is smaller, update
+            dV.put(key, value);
+            neighbors.put(key, weight);
+            return true;
+        } else {
+          //no entry exists for neighbor, place in hashmap
+          dV.put(key, value);
+          neighbors.put(key, weight);
+          return true;
+        }
     }
 
     public boolean addNeighbor(String ipAddress, int port, int weight) {
@@ -228,7 +254,7 @@ public class DistanceVector implements Serializable
         timeouts.remove(key);
         neighbors.remove(key);
         neighborsDV.remove(key);
-        System.out.println("Neighbor" + key + "dropped");
+        System.out.println("Neighbor " + key + " dropped");
       } else {
         timeouts.put(key, iterations);
       }

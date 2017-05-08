@@ -177,7 +177,7 @@ public void startServer() {
             String sender = message.getSenderRouter();
             int newWeight = message.getWeight();
             System.out.println("New weight to neighbor " + sender + " of " + newWeight);
-            distV.updateNeighbor(sender.split(":")[0], Integer.valueOf(sender.split(":")[0]), newWeight);
+            distV.updateNeighbor(sender.split(":")[0], Integer.valueOf(sender.split(":")[1]), newWeight);
             System.out.println("new dv calculated:");
             distV.printCalculatedDistanceVector();
             break;
@@ -242,6 +242,7 @@ public void run() {
             int destWeight = Integer.valueOf(parts[3]);
             updateWeight(destWeight, destIP, destPort);
             distV.printCalculatedDistanceVector();
+            startSender(destIP, destPort, 2, destWeight, "", distV);
             break;
             default:
             System.out.println("Invalid command");
@@ -315,7 +316,7 @@ public boolean sendMessage(String message, String ip, int port)
 *
 */
 public boolean updateWeight(int weight, String ip, int port) {
-  distV.updateNeighbor(ip, port, weight);
+  distV.updateNeighborWeight(ip, port, weight);
   return true;
 }
 /**
