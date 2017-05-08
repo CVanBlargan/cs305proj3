@@ -45,7 +45,7 @@ public class Router
         router.sendUpdates();
       }
     }, 100, router.updateTime);
-    
+
     Timer clock = new Timer();
 
     clock.scheduleAtFixedRate(new TimerTask() {
@@ -296,6 +296,8 @@ public boolean sendUpdates()
         String IPAddress = key.split(":")[0];
         int port = Integer.parseInt(key.split(":")[1]);
         startSender(IPAddress, port, 1, 0, "", distV.poisonedReverse(key, temp));
+        System.out.println("Update sent to all neighbors at time "+ time +" (in seconds)");
+        temp.printSentDistanceVector();
 
       }
     } catch (Exception e) {

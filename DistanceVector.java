@@ -231,7 +231,7 @@ public class DistanceVector implements Serializable
     for (String key : dV.keySet()) {
         String nextPath = dV.get(key).split(":", 2)[1];
         if (nextPath.equals(dest)) {
-          temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), Integer.valueOf(nextPath.split(":")[1]));
+          temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), 9999);
         } else {
           String distance = dV.get(key).split(":")[0];
         }
