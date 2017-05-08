@@ -166,7 +166,20 @@ public class DistanceVector implements Serializable
     if (!dV.containsKey(dest)) {
       return null;
     }
-    
+
     return dV.get(dest).split(":", 2)[1];
+  }
+
+  public DistanceVector poisonedReverse(String dest) throws Exception {
+    DistanceVector temp = (DistanceVector) this.clone();
+
+    for (String key : dV.keySet()) {
+        String nextPath = dV.get(key).split(":", 2)[1];
+        if (nextPath.contains(dest)) {
+          temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), 9999);
+        }
+    }
+
+    return temp;
   }
 }
