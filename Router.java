@@ -13,23 +13,42 @@ import java.net.*;
 public class Router
 {
   // instance variables
-  private static String ipAddress;
-  private static String filename;
-  private static int portNumber;
-  private static DistanceVector distV;
+  private String ipAddress;
+  private String filename;
+  private int portNumber;
+  private DistanceVector distV;
   private Socket clientSocket;
   private InetAddress ipAdd;
-  private static boolean poisonedReverse;
+  private boolean poisonedReverse;
   private ServerSocket serverSocket;
   private InputStream inputStream;
   private DataOutputStream socketOut;
-  private static int updateTime = 100000;
+  private int updateTime = 10000;
 
   public static void main(String[] args) throws Exception
   {
-    poisonedReverse = Boolean.parseBoolean(args[0]);
-    filename = args[1];
+    Router router = new Router();
+    router.poisonedReverse = Boolean.parseBoolean(args[0]);
+    router.filename = args[1];
 
+    router.setup(router.filename);
+
+    router.startServer();
+    //startSender();
+
+    Timer timer = new Timer();
+
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        router.sendUpdates();
+      }
+    }, 100, router.updateTime);
+
+    router.run();
+  }
+
+  public void setup(String filename) {
     BufferedReader br = null;
     FileReader fr = null;
 
@@ -80,22 +99,9 @@ public class Router
     }
 
   }
-  startServer();
-  //startSender();
-
-  Timer timer = new Timer();
-
-  timer.scheduleAtFixedRate(new TimerTask() {
-    @Override
-    public void run() {
-      sendUpdates();
-    }
-  }, 100, updateTime);
-
-  run();
 }
 
-public static void startSender(String neighborIP, int neighborPort, int sendType, int weight, String messageText, DistanceVector dV) {
+public void startSender(String neighborIP, int neighborPort, int sendType, int weight, String messageText, DistanceVector dV) {
   (new Thread() {
     @Override
     public void run() {
@@ -141,7 +147,7 @@ public static void startSender(String neighborIP, int neighborPort, int sendType
   }).start();
 }
 
-public static void startServer() {
+public void startServer() {
   (new Thread() {
     @Override
     public void run() {
@@ -210,7 +216,7 @@ public static void startServer() {
   }).start();
 }
 
-public static void run() {
+public void run() {
   (new Thread() {
     @Override
     public void run() {
@@ -255,41 +261,42 @@ public static void run() {
 * method that sends updated weights to all neighbors
 *
 */
-public static boolean sendUpdates()
+public boolean sendUpdates()
 {
- if(poisonedReverse == false){
-  HashMap<String, Integer> neighbors = distV.getNeighbors();
-  for (String key : neighbors.keySet()) {
-    String IPAddress = key.split(":")[0];
-    int port = Integer.parseInt(key.split(":")[1]);
+  if(poisonedReverse == false){
+    HashMap<String, Integer> neighbors = distV.getNeighbors();
+    for (String key : neighbors.keySet()) {
+      String IPAddress = key.split(":")[0];
+      int port = Integer.parseInt(key.split(":")[1]);
 
-    startSender(IPAddress, port, 1, 0, "", distV);
+      startSender(IPAddress, port, 1, 0, "", distV);
+    }
+    System.out.println("Update sent to all neighbors at time t(in seconds)");
+    distV.printSentDistanceVector();
+    return true;
+  }else{
+    HashMap<String, Integer> neighbors = distV.getNeighbors();
+    try {
+      for (String key : neighbors.keySet()) {
+
+
+        String IPAddress = key.split(":")[0];
+        int port = Integer.parseInt(key.split(":")[1]);
+        startSender(IPAddress, port, 1, 0, "", distV.poisonedReverse(key));
+
+      }
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+
+    return true;
   }
-  System.out.println("Update sent to all neighbors at time t(in seconds)");
-  distV.printSentDistanceVector();
-  return true;
-}else{
- HashMap<String, Integer> neighbors = distV.getNeighbors();
- for (String key : neighbors.keySet()) {
-     DistanceVector tempVect = new DistanceVector(distV.getHost());
-     try{
-         tempVect = distV.poisonedReverse(key);
-        }catch (Exception e){
-     
-        }
-   String IPAddress = key.split(":")[0];
-   int port = Integer.parseInt(key.split(":")[1]);
-   startSender(IPAddress, port, 1, 0, "", tempVect);
- }
- 
- return true;
-}
 }
 /**
 * method that recieves all updated weights from neighbors
 *
 */
-public static boolean recieveUpdates(DistanceVector dV, String sender) {
+public boolean recieveUpdates(DistanceVector dV, String sender) {
   distV.addVector(dV.getDistanceVector(), sender);
   return true;
 }
@@ -305,7 +312,7 @@ public boolean sendMessage(String message, String ip, int port)
 * method that sends a message to a specific neighbor
 *
 */
-public static boolean updateWeight(int weight, String ip, int port) {
+public boolean updateWeight(int weight, String ip, int port) {
   distV.updateNeighbor(ip, port, weight);
   return true;
 }

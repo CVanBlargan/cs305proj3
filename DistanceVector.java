@@ -28,6 +28,21 @@ public class DistanceVector implements Serializable
         source = host;
     }
 
+    public DistanceVector(DistanceVector old) {
+      dV = old.getDistanceVector();
+      neighbors = old.getNeighbors();
+      neighborsDV = old.getNeighborsDV();
+      source = old.getSource();
+    }
+
+    public String getSource() {
+      return source;
+    }
+
+    public HashMap<String, HashMap<String, String>> getNeighborsDV() {
+      return neighborsDV;
+    }
+
    /**
     * Gets the hashmap storing the router's distance vector.
     * @return the hashmap storing the router's distance vector.
@@ -171,15 +186,20 @@ public class DistanceVector implements Serializable
   }
 
   public DistanceVector poisonedReverse(String dest) throws Exception {
-    DistanceVector temp = (DistanceVector) this.clone();
-
+    DistanceVector temp = new DistanceVector(this);
     for (String key : dV.keySet()) {
         String nextPath = dV.get(key).split(":", 2)[1];
-        if (nextPath.contains(dest)) {
-          temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), 9999);
+        System.out.println(nextPath);
+        System.out.println(nextPath + " " + dest + " " + nextPath.equals(dest));
+        if (nextPath.equals(dest)) {
+          System.out.println("updating");
+          temp.updateNeighbor(nextPath.split(":")[0], Integer.valueOf(nextPath.split(":")[1]), Integer.valueOf(nextPath.split(":")[1]));
+        } else {
+          String distance = dV.get(key).split(":")[0];
+          System.out.println(key + " " + distance);
         }
     }
-
+    System.out.println("bye");
     return temp;
   }
   public String getHost()
