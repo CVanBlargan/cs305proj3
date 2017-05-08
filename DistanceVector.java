@@ -18,11 +18,12 @@ public class DistanceVector implements Serializable
     private ConcurrentHashMap<String, Integer> timeouts;
 
     private String source;
+    private boolean poisonedRev;
 
     /**
      * Constructor for objects of class DistanceVector
      */
-    public DistanceVector(String host) {
+    public DistanceVector(String host, boolean pr) {
         // initialise instance variables
         neighbors = new HashMap<String, Integer>();
         dV = new HashMap<String, String>();
@@ -30,6 +31,8 @@ public class DistanceVector implements Serializable
         timeouts = new ConcurrentHashMap<String, Integer>();
 
         source = host;
+
+        poisonedRev = pr;
     }
 
     public DistanceVector(DistanceVector old) {
@@ -87,7 +90,7 @@ public class DistanceVector implements Serializable
             return true;
           } else {
             String oldPath = dV.get(key).split(":", 2)[1];
-            if (oldPath.equals(key)) {
+            if (oldPath.equals(key) && neighbors.containsKey(key)) {
               //old shortest path to neighbor was straight to neighbor. Need to update distance to this.
               dV.put(key, value);
             }
@@ -104,7 +107,7 @@ public class DistanceVector implements Serializable
     public boolean addNeighbor(String ipAddress, int port, int weight) {
       String key = ipAddress + ":" + Integer.toString(port);
       neighbors.put(key, weight);
-      timeouts.put(key, 0);
+      if (poisonedRev) timeouts.put(key, 0);
       return true;
     }
 
@@ -116,7 +119,7 @@ public class DistanceVector implements Serializable
     */
     public boolean addVector(HashMap<String, String> vector, String sender) {
       //update timeouts
-      timeouts.put(sender, 0);
+      if (poisonedRev) timeouts.put(sender, 0);
 
 
       neighborsDV.put(sender, vector);

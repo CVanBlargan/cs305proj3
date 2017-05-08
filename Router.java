@@ -64,7 +64,7 @@ public class Router
       String[] parts = sCurrentLine.split(" ");
       ipAddress = parts[0];
       portNumber = Integer.parseInt(parts[1]);
-      distV = new DistanceVector(parts[0] + ":" + parts[1]);
+      distV = new DistanceVector(parts[0] + ":" + parts[1], poisonedReverse);
     }
 
 
@@ -153,9 +153,9 @@ public void startServer() {
     public void run() {
       try {
         DatagramSocket serverSocket = new DatagramSocket(portNumber);
-        byte[] receiveData = new byte[2048];
+        byte[] receiveData = new byte[20480];
         while(true) {
-          receiveData = new byte[2048];
+          receiveData = new byte[20480];
           DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
           serverSocket.receive(receivePacket);
           byte[] sentence = receivePacket.getData();
@@ -261,8 +261,6 @@ public void run() {
 */
 public boolean sendUpdates()
 {
-  distV.updateTimeouts();
-
   if(poisonedReverse == false){
     HashMap<String, Integer> neighbors = distV.getNeighbors();
     for (String key : neighbors.keySet()) {
@@ -275,6 +273,8 @@ public boolean sendUpdates()
     distV.printSentDistanceVector();
     return true;
   }else{
+    distV.updateTimeouts();
+
     HashMap<String, Integer> neighbors = distV.getNeighbors();
     try {
       for (String key : neighbors.keySet()) {
