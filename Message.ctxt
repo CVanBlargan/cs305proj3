@@ -1,12 +1,17 @@
 #BlueJ class context
-comment0.params=ip\ port\ newMessage
-comment0.target=Message(java.lang.String,\ int,\ java.lang.String)
+comment0.params=ip\ port\ newMessage\ sendIP\ sendPort
+comment0.target=Message(java.lang.String,\ int,\ java.lang.String,\ java.lang.String,\ int)
 comment0.text=\r\n\ Overloaded\ Constructor\ for\ 3\ different\ types\ of\ Messages\ as\ per\ project\ description\r\n
-comment1.params=ip\ port\ newDistV
-comment1.target=Message(java.lang.String,\ int,\ DistanceVector)
-comment2.params=ip\ port\ weight
-comment2.target=Message(java.lang.String,\ int,\ int)
-comment3.params=y
-comment3.target=int\ sampleMethod(int)
-comment3.text=\r\n\ An\ example\ of\ a\ method\ -\ replace\ this\ comment\ with\ your\ own\r\n\ \r\n\ @param\ \ y\ \ \ a\ sample\ parameter\ for\ a\ method\r\n\ @return\ \ \ \ \ the\ sum\ of\ x\ and\ y\ \r\n
-numComments=4
+comment1.params=ip\ port\ newDistV\ sendIP\ sendPort
+comment1.target=Message(java.lang.String,\ int,\ DistanceVector,\ java.lang.String,\ int)
+comment2.params=ip\ port\ weight\ sendIP\ sendPort
+comment2.target=Message(java.lang.String,\ int,\ int,\ java.lang.String,\ int)
+comment3.params=
+comment3.target=DistanceVector\ getDistanceVector()
+comment4.params=
+comment4.target=java.lang.String\ getSenderRouter()
+comment5.params=
+comment5.target=int\ getType()
+comment6.params=
+comment6.target=int\ getWeight()
+numComments=7

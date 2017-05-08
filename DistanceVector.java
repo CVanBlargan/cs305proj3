@@ -182,4 +182,8 @@ public class DistanceVector implements Serializable
 
     return temp;
   }
+  public String getHost()
+  {
+      return source;
+  }
 }

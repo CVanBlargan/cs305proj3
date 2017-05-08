@@ -95,7 +95,7 @@ public class Router
   run();
 }
 
-public static void startSender(String neighborIP, int neighborPort, int sendType, int weight, String messageText) {
+public static void startSender(String neighborIP, int neighborPort, int sendType, int weight, String messageText, DistanceVector dV) {
   (new Thread() {
     @Override
     public void run() {
@@ -110,7 +110,7 @@ public static void startSender(String neighborIP, int neighborPort, int sendType
           default:
           //Distance Vector
           case 1:
-          message = new Message(neighborIP, neighborPort, distV, ipAddress, portNumber);
+          message = new Message(neighborIP, neighborPort, dV, ipAddress, portNumber);
           break;
           //Weight update
           case 2:
@@ -192,7 +192,7 @@ public static void startServer() {
                 destPort = Integer.valueOf(routedDest.split(":")[1]);
 
                 String msg = message.getMessage();
-                startSender(destIP, destPort, 3, 0, msg);
+                startSender(destIP, destPort, 3, 0, msg, distV);
                 System.out.println("Message msg from ipAddr:port to ipAddr:port forwarded to " + routedDest);
                 System.out.println(msg + " " + ipAddress + ":" + portNumber);
               }
@@ -230,7 +230,7 @@ public static void run() {
             String destIP = parts[1];
             int destPort = Integer.valueOf(parts[2]);
             String msg = parts[3];
-            startSender(destIP, destPort, 3, 0, msg);
+            startSender(destIP, destPort, 3, 0, msg, distV);
             break;
             case "CHANGE":
             destIP = parts[1];
@@ -263,13 +263,25 @@ public static boolean sendUpdates()
     String IPAddress = key.split(":")[0];
     int port = Integer.parseInt(key.split(":")[1]);
 
-    startSender(IPAddress, port, 1, 0, "");
+    startSender(IPAddress, port, 1, 0, "", distV);
   }
   System.out.println("Update sent to all neighbors at time t(in seconds)");
   distV.printSentDistanceVector();
   return true;
 }else{
- DistanceVector tempVect = distV;
+ HashMap<String, Integer> neighbors = distV.getNeighbors();
+ for (String key : neighbors.keySet()) {
+     DistanceVector tempVect = new DistanceVector(distV.getHost());
+     try{
+         tempVect = distV.poisonedReverse(key);
+        }catch (Exception e){
+     
+        }
+   String IPAddress = key.split(":")[0];
+   int port = Integer.parseInt(key.split(":")[1]);
+   startSender(IPAddress, port, 1, 0, "", tempVect);
+ }
+ 
  return true;
 }
 }

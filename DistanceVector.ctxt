@@ -1,10 +1,14 @@
 #BlueJ class context
-comment0.params=
-comment0.target=DistanceVector()
+comment0.params=host
+comment0.target=DistanceVector(java.lang.String)
 comment0.text=\r\n\ Constructor\ for\ objects\ of\ class\ DistanceVector\r\n
 comment1.params=
 comment1.target=java.util.HashMap\ getDistanceVector()
 comment1.text=\r\n\ Gets\ the\ hashmap\ storing\ the\ router's\ distance\ vector.\r\n\ @return\ the\ hashmap\ storing\ the\ router's\ distance\ vector.\r\n
+comment10.params=dest
+comment10.target=DistanceVector\ poisonedReverse(java.lang.String)
+comment11.params=
+comment11.target=java.lang.String\ getHost()
 comment2.params=
 comment2.target=java.util.HashMap\ getNeighbors()
 comment3.params=ipAddress\ port\ weight
@@ -21,4 +25,8 @@ comment6.text=\r\n\ Call\ after\ calculating\ a\ new\ distance\ vector\ to\ prin
 comment7.params=
 comment7.target=boolean\ printSentDistanceVector()
 comment7.text=\r\n\ Call\ when\ sending\ or\ recieving\ a\ distance\ vector\ to\ print\ the\ sent/recieved\ vector\r\n\ @return\ true\ after\ printing\r\n
-numComments=8
+comment8.params=
+comment8.target=boolean\ printNeighborVectors()
+comment9.params=dest
+comment9.target=java.lang.String\ getNextNode(java.lang.String)
+numComments=12
